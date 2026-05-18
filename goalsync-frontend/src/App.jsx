@@ -1,36 +1,44 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Suspense } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
+import { lazy } from 'react';
 
-// Pages
-import LoginPage from './pages/auth/LoginPage';
+// Lazy load pages for code splitting
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 
 // Employee
-import EmployeeDashboard from './pages/employee/EmployeeDashboard';
-import MyGoals from './pages/employee/MyGoals';
-import CreateGoal from './pages/employee/CreateGoal';
-import CheckIns from './pages/employee/CheckIns';
-import EmployeeAnalytics from './pages/employee/EmployeeAnalytics';
+const EmployeeDashboard = lazy(() => import('./pages/employee/EmployeeDashboard'));
+const MyGoals = lazy(() => import('./pages/employee/MyGoals'));
+const CreateGoal = lazy(() => import('./pages/employee/CreateGoal'));
+const CheckIns = lazy(() => import('./pages/employee/CheckIns'));
+const EmployeeAnalytics = lazy(() => import('./pages/employee/EmployeeAnalytics'));
 
 // Manager
-import ManagerDashboard from './pages/manager/ManagerDashboard';
-import GoalApprovals from './pages/manager/GoalApprovals';
-import TeamDirectory from './pages/manager/TeamDirectory';
-import TeamAnalytics from './pages/manager/TeamAnalytics';
-import SharedGoals from './pages/manager/SharedGoals';
+const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
+const GoalApprovals = lazy(() => import('./pages/manager/GoalApprovals'));
+const TeamDirectory = lazy(() => import('./pages/manager/TeamDirectory'));
+const TeamAnalytics = lazy(() => import('./pages/manager/TeamAnalytics'));
+const SharedGoals = lazy(() => import('./pages/manager/SharedGoals'));
 
 // Admin
-import AdminDashboard from './pages/admin/AdminDashboard';
-import UserManagement from './pages/admin/UserManagement';
-import Reports from './pages/admin/Reports';
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const Reports = lazy(() => import('./pages/admin/Reports'));
+
+// Loading component
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<Suspense fallback={<PageLoader />}><LoginPage /></Suspense>} />
+      <Route path="/login" element={<Suspense fallback={<PageLoader />}><LoginPage /></Suspense>} />
 
       {/* Employee Routes */}
       <Route path="/employee" element={
@@ -39,11 +47,11 @@ function AppRoutes() {
         </ProtectedRoute>
       }>
         <Route index element={<Navigate to="/employee/dashboard" replace />} />
-        <Route path="dashboard" element={<EmployeeDashboard />} />
-        <Route path="goals" element={<MyGoals />} />
-        <Route path="goals/create" element={<CreateGoal />} />
-        <Route path="checkins" element={<CheckIns />} />
-        <Route path="analytics" element={<EmployeeAnalytics />} />
+        <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><EmployeeDashboard /></Suspense>} />
+        <Route path="goals" element={<Suspense fallback={<PageLoader />}><MyGoals /></Suspense>} />
+        <Route path="goals/create" element={<Suspense fallback={<PageLoader />}><CreateGoal /></Suspense>} />
+        <Route path="checkins" element={<Suspense fallback={<PageLoader />}><CheckIns /></Suspense>} />
+        <Route path="analytics" element={<Suspense fallback={<PageLoader />}><EmployeeAnalytics /></Suspense>} />
       </Route>
 
       {/* Manager Routes */}
@@ -53,12 +61,12 @@ function AppRoutes() {
         </ProtectedRoute>
       }>
         <Route index element={<Navigate to="/manager/dashboard" replace />} />
-        <Route path="dashboard" element={<ManagerDashboard />} />
-        <Route path="approvals" element={<GoalApprovals />} />
-        <Route path="team" element={<TeamDirectory />} />
-        <Route path="analytics" element={<TeamAnalytics />} />
-        <Route path="shared" element={<SharedGoals />} />
-        <Route path="reports" element={<Reports />} />
+        <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><ManagerDashboard /></Suspense>} />
+        <Route path="approvals" element={<Suspense fallback={<PageLoader />}><GoalApprovals /></Suspense>} />
+        <Route path="team" element={<Suspense fallback={<PageLoader />}><TeamDirectory /></Suspense>} />
+        <Route path="analytics" element={<Suspense fallback={<PageLoader />}><TeamAnalytics /></Suspense>} />
+        <Route path="shared" element={<Suspense fallback={<PageLoader />}><SharedGoals /></Suspense>} />
+        <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
       </Route>
 
       {/* Admin Routes */}
@@ -68,13 +76,13 @@ function AppRoutes() {
         </ProtectedRoute>
       }>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="users" element={<UserManagement />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="cycles" element={<Reports />} />
-        <Route path="analytics" element={<AdminDashboard />} />
-        <Route path="audit" element={<Reports />} />
-        <Route path="goals" element={<GoalApprovals />} />
+        <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
+        <Route path="users" element={<Suspense fallback={<PageLoader />}><UserManagement /></Suspense>} />
+        <Route path="reports" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
+        <Route path="cycles" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
+        <Route path="analytics" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
+        <Route path="audit" element={<Suspense fallback={<PageLoader />}><Reports /></Suspense>} />
+        <Route path="goals" element={<Suspense fallback={<PageLoader />}><GoalApprovals /></Suspense>} />
       </Route>
 
       {/* 404 */}

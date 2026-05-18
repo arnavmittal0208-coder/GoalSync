@@ -11,20 +11,43 @@ export const AuthProvider = ({ children }) => {
 
   const loadUser = useCallback(async () => {
     const token = localStorage.getItem('goalsync_token');
-    if (!token) { setLoading(false); return; }
+    const cachedUser = localStorage.getItem('goalsync_user');
+    
+    if (!token) { 
+      setLoading(false); 
+      return; 
+    }
+    
+    // Use cached user while fetching fresh data (faster initial load)
+    if (cachedUser) {
+      try {
+        const parsedUser = JSON.parse(cachedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (e) {
+        // Invalid cached data, ignore
+      }
+    }
+    
+    // Fetch fresh user data in background
     try {
       const { data } = await authAPI.getMe();
       setUser(data.user);
       setIsAuthenticated(true);
+      localStorage.setItem('goalsync_user', JSON.stringify(data.user));
     } catch (error) {
       localStorage.removeItem('goalsync_token');
       localStorage.removeItem('goalsync_user');
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { loadUser(); }, [loadUser]);
+  useEffect(() => { 
+    loadUser(); 
+  }, [loadUser]);
 
   const login = async (email, password) => {
     const { data } = await authAPI.login({

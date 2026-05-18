@@ -27,4 +27,11 @@ const goalSchema = new mongoose.Schema({
   year: { type: Number, default: () => new Date().getFullYear() },
 }, { timestamps: true });
 
+// Performance indexes
+goalSchema.index({ owner: 1 });
+goalSchema.index({ status: 1 });
+goalSchema.index({ year: 1 });
+goalSchema.index({ owner: 1, year: 1 });
+goalSchema.index({ status: 1, year: 1 });
+
 module.exports = mongoose.model('Goal', goalSchema);

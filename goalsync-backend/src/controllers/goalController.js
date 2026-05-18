@@ -23,7 +23,10 @@ const getMyGoals = async (req, res, next) => {
     const filter = { owner: req.user._id };
     if (status) filter.status = status;
     if (year) filter.year = parseInt(year);
-    const goals = await Goal.find(filter).populate('approvedBy rejectedBy lockedBy', 'name email').sort('-createdAt');
+    const goals = await Goal.find(filter)
+      .populate('approvedBy rejectedBy lockedBy', 'name email')
+      .lean()
+      .sort('-createdAt');
     res.status(200).json({ success: true, count: goals.length, goals });
   } catch (error) { next(error); }
 };
@@ -133,11 +136,12 @@ const submitGoals = async (req, res, next) => {
 // @route   GET /api/goals/team
 const getTeamGoals = async (req, res, next) => {
   try {
-    const teamMembers = await User.find({ managerId: req.user._id }).select('_id');
+    const teamMembers = await User.find({ managerId: req.user._id }).select('_id').lean();
     const memberIds = teamMembers.map(m => m._id);
     const goals = await Goal.find({ owner: { $in: memberIds } })
       .populate('owner', 'name email department designation avatar')
       .populate('approvedBy rejectedBy', 'name')
+      .lean()
       .sort('-createdAt');
     res.status(200).json({ success: true, count: goals.length, goals });
   } catch (error) { next(error); }
